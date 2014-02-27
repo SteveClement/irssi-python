@@ -1,13 +1,32 @@
-Prior to building irssi-python, you'll need Python 2.4, glib 2.0, and Irssi 
+Prior to building irssi-python, you'll need Python 2.4, glib 2.0, and Irssi
 installed.
 
-1. Download and unpack the irssi source (ie irssi-0.8.10a.tar.gz) if you haven't
-   done so already. irssi-python will need access to Irssi's headers. 
+Under Ubuntu this will make it build:
 
-2. Run the configure script, making sure to specify the correct location of
+ sudo apt-get install irssi build-essential python-dev
+
+
+1. Download and unpack the irssi source (ie irssi-0.8.16-rc1.tar.gz) if you haven't
+   done so already. irssi-python will need access to Irssi's headers.
+
+   wget http://www.irssi.org/files/irssi-0.8.16-rc1.tar.gz
+
+   tar xfvz irssi-0.8.16-rc1.tar.gz
+
+2. Generate configure scripts and add other dependencies:
+
+   awk -f src/constants.awk src/constants.txt > src/pyconstants.c
+   libtoolize -f -c
+   aclocal --force -I.
+   autoheader -f
+   autoconf -f
+   automake -a -c --gnu --foreign
+
+3. Run the configure script, making sure to specify the correct location of
    Irssi's distribution with the --with-irssi switch. For example:
 
-   $ configure --with-irssi=~/irssi-0.8.10
+   $ ./configure --with-irssi=../irssi-0.8.16-rc1 --datadir=/usr --prefix=/usr --localstatedir=/var --sysconfdir=/etc
+
 
    If configure has trouble linking a Python test program due to missing pthread
    symbols (occasionally on FreeBSD), try:
@@ -15,15 +34,19 @@ installed.
    $ LDFLAGS="-pthread" configure --with-irssi=<path/to/distro>
 
    Make sure the prefix for irssi-python matches Irssi's (/usr, /usr/local,
-   etc) so that the module and scripts are installed in the right places. 
+   etc) so that the module and scripts are installed in the right places.
 
-3. As usual, run make.
+3. As usual, run make:
+
+  make -C src constants
+  make
+  sudo make install
 
 4. make install if OK. libpython.so should be copied to irssi/modules/,
    scripts to irssi/scripts/ and irssi-python.html to doc/irssi/.
-  
+
 5. You should be able to load the module in Irssi after installing, IE:
-   
+
    /load python
 
    If you get missing pthread symbols, you may have to preload the thread safe
